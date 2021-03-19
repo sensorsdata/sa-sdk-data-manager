@@ -1,0 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.sensorsdata.manager">
+
+    <!-- 同步数据需要网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 获取网络状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- 获取运营商信息 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application>
+        <provider
+            android:name="com.sensorsdata.manager.db.SensorsDataManagerContentProvider"
+            android:authorities="com.sensorsdata.manager.SensorsDataContentProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <meta-data
+            android:name="com.sensorsdata.analytics.android.MainProcessName"
+            android:value="${applicationId}" />
+    </application>
+</manifest>

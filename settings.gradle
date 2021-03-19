@@ -1,0 +1,3 @@
+include ':SensorsDataManager'
+include ':app'
+rootProject.name = "sa-sdk-data-manager"
