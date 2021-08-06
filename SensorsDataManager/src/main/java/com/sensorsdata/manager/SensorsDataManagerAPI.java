@@ -7,9 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.sensorsdata.manager.db.DBConstant;
 import com.sensorsdata.manager.utils.AppInfoUtils;
 import com.sensorsdata.manager.utils.NetworkUtils;
 import com.sensorsdata.manager.utils.SALogger;
+import com.sensorsdata.manager.utils.SensorsConfigUtils;
+
+import static com.sensorsdata.manager.utils.SADataHelper.assertValue;
 
 public class SensorsDataManagerAPI {
     private static final String TAG = "SensorsDataManagerAPI";
@@ -20,6 +24,7 @@ public class SensorsDataManagerAPI {
     private final AnalyticsFlushData mFlushDataMessage;
     static boolean mIsMainProcess = false;
     private String mServerUrl;
+    private Context mContext;
 
     public synchronized static void startWithConfigOptions(Context context, SMConfigOptions configOptions) {
         if (context == null) {
@@ -36,24 +41,25 @@ public class SensorsDataManagerAPI {
     }
 
     private SensorsDataManagerAPI(Context context, SMConfigOptions configOptions) {
-        Context mContext = context.getApplicationContext();
+        Context applicationContext = context.getApplicationContext();
         this.mSMConfigOptions = configOptions;
+        this.mContext = applicationContext;
         SALogger.setEnableLog(configOptions.isLogEnable);
         setServerUrl(configOptions.mServerUrl);
         try {
-            String mainProcessName = AppInfoUtils.getMainProcessName(mContext);
+            String mainProcessName = AppInfoUtils.getMainProcessName(applicationContext);
             if (TextUtils.isEmpty(mainProcessName)) {
-                final ApplicationInfo appInfo = mContext.getApplicationContext().getPackageManager()
-                        .getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+                final ApplicationInfo appInfo = applicationContext.getApplicationContext().getPackageManager()
+                        .getApplicationInfo(applicationContext.getPackageName(), PackageManager.GET_META_DATA);
                 Bundle configBundle = appInfo.metaData;
                 mainProcessName = configBundle.getString("com.sensorsdata.analytics.android.MainProcessName");
             }
-            mIsMainProcess = AppInfoUtils.isMainProcess(mContext, mainProcessName);
+            mIsMainProcess = AppInfoUtils.isMainProcess(applicationContext, mainProcessName);
         } catch (final PackageManager.NameNotFoundException e) {
             SALogger.printStackTrace(e);
         }
-        mFlushDataMessage = new AnalyticsFlushData(context, configOptions);
-        NetworkUtils.registerNetworkListener(context);
+        mFlushDataMessage = new AnalyticsFlushData(applicationContext, configOptions);
+        NetworkUtils.registerNetworkListener(applicationContext);
     }
 
     public static SensorsDataManagerAPI sharedInstance() throws NullPointerException {
@@ -108,6 +114,43 @@ public class SensorsDataManagerAPI {
      */
     public void flushDelay() {
         mFlushDataMessage.flushDelay();
+    }
+
+    /**
+     * 登录
+     * @param loginId 用户 ID
+     */
+    private void login(String loginId) {
+        try {
+            assertValue(loginId);
+            SensorsConfigUtils.putString(mContext, DBConstant.LOGIN_ID, loginId);
+        } catch (Exception e) {
+            SALogger.printStackTrace(e);
+        }
+    }
+
+    /**
+     * 设置匿名 ID
+     * @param anonymousId 匿名 ID
+     */
+    public void identify(final String anonymousId) {
+        try {
+            assertValue(anonymousId);
+            SensorsConfigUtils.putString(mContext, DBConstant.ANONYMOUS_ID, anonymousId);
+        } catch (Exception e) {
+            SALogger.printStackTrace(e);
+        }
+    }
+
+    /**
+     * 用户登出
+     */
+    private void logout() {
+        try {
+            SensorsConfigUtils.putString(mContext, DBConstant.LOGIN_ID, "");
+        } catch (Exception e) {
+            SALogger.printStackTrace(e);
+        }
     }
 
     private void setServerUrl(String serverUrl) {

@@ -1,5 +1,6 @@
 package com.sensorsdata.manager.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.text.TextUtils;
 
 import com.sensorsdata.manager.SensorsDataManagerAPI;
 import com.sensorsdata.manager.utils.SALogger;
+import com.sensorsdata.manager.utils.SensorsConfigUtils;
 import com.sensorsdata.manager.utils.TimeUtils;
 
 import org.json.JSONArray;
@@ -70,6 +72,44 @@ public class DBUtil {
             }
         }
         return 0;
+    }
+
+    /**
+     * 更新用户 ID
+     * @param contentValues 埋点数据
+     */
+    void updateIds(ContentValues contentValues) {
+        try {
+            String anonymousId = SensorsConfigUtils.getString(mContext, DBConstant.ANONYMOUS_ID);
+            if (TextUtils.isEmpty(anonymousId)) {
+                return;
+            }
+
+            String dataValue = contentValues.getAsString(DBConstant.KEY_DATA);
+            dataValue = dataValue.substring(0, dataValue.indexOf("\t"));
+            JSONObject jsonObject = new JSONObject(dataValue);
+
+            String type = jsonObject.optString("type");
+            if ("item_set".equals(type) || "item_delete".equals(type)) {
+                return;
+            }
+
+            if (!TextUtils.isEmpty(anonymousId)) {
+                jsonObject.put(DBConstant.ANONYMOUS_ID, anonymousId);
+                if (!jsonObject.has(DBConstant.LOGIN_ID)) {
+                    jsonObject.put(DBConstant.DISTINCT_ID, anonymousId);
+                }
+            }
+
+            String eventName = jsonObject.optString("event");
+            if ("$SignUp".equals(eventName) && !TextUtils.isEmpty(anonymousId)) {
+                jsonObject.put(DBConstant.ORIGINAL_ID, anonymousId);
+            }
+
+            contentValues.put(DBConstant.KEY_DATA, jsonObject.toString() + "\t" + jsonObject.toString().hashCode());
+        } catch (Exception e) {
+            SALogger.printStackTrace(e);
+        }
     }
 
     /**

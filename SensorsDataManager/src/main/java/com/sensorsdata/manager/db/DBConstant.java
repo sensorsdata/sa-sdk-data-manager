@@ -13,4 +13,8 @@ public class DBConstant {
     /* ContentProvider 的 AUTHORITY */
     public static final String AUTHORITY = "com.sensorsdata.manager.SensorsDataContentProvider";
     public static final int DB_OUT_OF_MEMORY_ERROR = -2;
+    public static final String LOGIN_ID = "login_id";
+    public static final String ANONYMOUS_ID = "anonymous_id";
+    public static final String DISTINCT_ID = "distinct_id";
+    public static final String ORIGINAL_ID = "original_id";
 }

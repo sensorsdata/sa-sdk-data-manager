@@ -128,6 +128,8 @@ public class SensorsDataManagerContentProvider extends ContentProvider {
         if (!values.containsKey(DBConstant.KEY_DATA) || !values.containsKey(DBConstant.KEY_CREATED_AT)) {
             return uri;
         }
+        // 更新用户标识
+        DBUtil.getInstance(getContext()).updateIds(values);
         long d = database.insert(DBConstant.TABLE_EVENTS, "_id", values);
         return ContentUris.withAppendedId(uri, d);
     }
