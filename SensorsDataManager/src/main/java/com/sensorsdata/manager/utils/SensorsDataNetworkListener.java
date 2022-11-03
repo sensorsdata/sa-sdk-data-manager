@@ -9,8 +9,6 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 import com.sensorsdata.manager.SensorsDataManagerAPI;
 
 public class SensorsDataNetworkListener {
@@ -28,7 +26,6 @@ public class SensorsDataNetworkListener {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     static class SANetworkCallbackImpl extends ConnectivityManager.NetworkCallback {
 

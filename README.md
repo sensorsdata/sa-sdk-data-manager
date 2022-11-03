@@ -12,8 +12,7 @@
 
 ## SDK 简介
 
-SensorsAnalytics SDK 是国内第一家开源商用版用户行为采集 SDK，目前支持代码埋点、全埋点、App 点击图、可视化全埋点等。目前已累计有 1500 多家付费客户，2500+ 的 App 集成使用，作为 App 数据采集利器，致力于帮助客户挖掘更多的商业价值，为其精准运营和业务支撑提供了可靠的数据来源。其采集全面而灵活、性能良好，并一直保持稳定的迭代，经受住了时间和客户的考验。
-
+多个 App 同时集成我们的 SDK 来进行数据的采集，这种情况下就会造成多个 App 同时进行数据上报，比较耗费资源，SensorsAnalytics 统一上报 SDK 很好的满足统一数据管理上报的需求。
 ## 基本要求
 Android 4.0 及以上。
 
@@ -46,7 +45,7 @@ Android 4.0 及以上。
 
 ## License
 
-Copyright 2015－2021 Sensors Data Inc.
+Copyright 2015－2022 Sensors Data Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

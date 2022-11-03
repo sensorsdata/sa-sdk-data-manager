@@ -17,22 +17,26 @@ import static com.sensorsdata.manager.utils.SADataHelper.assertValue;
 
 public class SensorsDataManagerAPI {
     private static final String TAG = "SensorsDataManagerAPI";
-    private final SMConfigOptions mSMConfigOptions;
+    private SMConfigOptions mSMConfigOptions;
     private static SensorsDataManagerAPI mInstance;
     /* 是否请求网络 */
     private boolean mEnableNetworkRequest = true;
-    private final AnalyticsFlushData mFlushDataMessage;
+    private AnalyticsFlushData mFlushDataMessage;
     static boolean mIsMainProcess = false;
     private String mServerUrl;
     private Context mContext;
 
+    SensorsDataManagerAPI() {
+        super();
+    }
+
     public synchronized static void startWithConfigOptions(Context context, SMConfigOptions configOptions) {
         if (context == null) {
-            throw new IllegalArgumentException("Context should not be null.");
+            return;
         }
 
         if (configOptions == null) {
-            throw new IllegalArgumentException("ConfigOptions should not be null.");
+            return;
         }
 
         if (mInstance == null) {
@@ -41,37 +45,36 @@ public class SensorsDataManagerAPI {
     }
 
     private SensorsDataManagerAPI(Context context, SMConfigOptions configOptions) {
-        Context applicationContext = context.getApplicationContext();
         this.mSMConfigOptions = configOptions;
-        this.mContext = applicationContext;
+        this.mContext = context.getApplicationContext();
         SALogger.setEnableLog(configOptions.isLogEnable);
         setServerUrl(configOptions.mServerUrl);
         try {
-            String mainProcessName = AppInfoUtils.getMainProcessName(applicationContext);
+            String mainProcessName = AppInfoUtils.getMainProcessName(mContext);
             if (TextUtils.isEmpty(mainProcessName)) {
-                final ApplicationInfo appInfo = applicationContext.getApplicationContext().getPackageManager()
-                        .getApplicationInfo(applicationContext.getPackageName(), PackageManager.GET_META_DATA);
+                final ApplicationInfo appInfo = mContext.getPackageManager()
+                        .getApplicationInfo(mContext.getPackageName(), PackageManager.GET_META_DATA);
                 Bundle configBundle = appInfo.metaData;
                 mainProcessName = configBundle.getString("com.sensorsdata.analytics.android.MainProcessName");
             }
-            mIsMainProcess = AppInfoUtils.isMainProcess(applicationContext, mainProcessName);
+            mIsMainProcess = AppInfoUtils.isMainProcess(mContext, mainProcessName);
         } catch (final PackageManager.NameNotFoundException e) {
             SALogger.printStackTrace(e);
         }
-        mFlushDataMessage = new AnalyticsFlushData(applicationContext, configOptions);
-        NetworkUtils.registerNetworkListener(applicationContext);
+        mFlushDataMessage = new AnalyticsFlushData(mContext, configOptions);
+        NetworkUtils.registerNetworkListener(mContext);
     }
 
-    public static SensorsDataManagerAPI sharedInstance() throws NullPointerException {
+    public static SensorsDataManagerAPI sharedInstance() {
         if (null == mInstance) {
-            SALogger.i(TAG, "The static method startWithConfigOptions(Context context, ConfigOptions configOptions) should be called before calling sharedInstance()");
-            throw new NullPointerException("The static method startWithConfigOptions(Context context, ConfigOptions configOptions) should be called before calling sharedInstance()");
+            return new EmptyDataManagerAPI();
         }
         return mInstance;
     }
 
     /**
      * 是否允许访问网络
+     *
      * @return 是否允许访问网络
      */
     public boolean isNetworkRequestEnable() {
@@ -80,6 +83,7 @@ public class SensorsDataManagerAPI {
 
     /**
      * 设置是否允许访问网络
+     *
      * @param isRequest 是否允许访问网咯
      */
     public void enableNetworkRequest(boolean isRequest) {
@@ -88,6 +92,7 @@ public class SensorsDataManagerAPI {
 
     /**
      * 获取数据库缓存大小
+     *
      * @return 缓存大小
      */
     public long getMaxCacheSize() {
@@ -96,6 +101,7 @@ public class SensorsDataManagerAPI {
 
     /**
      * 获取缓存条数
+     *
      * @return 缓存条数
      */
     public int getFlushSize() {
@@ -118,6 +124,7 @@ public class SensorsDataManagerAPI {
 
     /**
      * 登录
+     *
      * @param loginId 用户 ID
      */
     private void login(String loginId) {
@@ -131,6 +138,7 @@ public class SensorsDataManagerAPI {
 
     /**
      * 设置匿名 ID
+     *
      * @param anonymousId 匿名 ID
      */
     public void identify(final String anonymousId) {
@@ -153,24 +161,28 @@ public class SensorsDataManagerAPI {
         }
     }
 
-    private void setServerUrl(String serverUrl) {
-        if (TextUtils.isEmpty(serverUrl)) {
+    public void setServerUrl(String serverUrl) {
+        try {
+            if (TextUtils.isEmpty(serverUrl)) {
+                mServerUrl = serverUrl;
+                SALogger.i(TAG, "Server url is null or empty.");
+                return;
+            }
+
+            Uri serverURI = Uri.parse(serverUrl);
+            String hostServer = serverURI.getHost();
+            if (!TextUtils.isEmpty(hostServer) && hostServer.contains("_")) {
+                SALogger.i(TAG, "Server url " + serverUrl + " contains '_' is not recommend，" +
+                        "see details: https://en.wikipedia.org/wiki/Hostname");
+            }
+
             mServerUrl = serverUrl;
-            SALogger.i(TAG, "Server url is null or empty.");
-            return;
+        } catch (Exception e) {
+            SALogger.printStackTrace(e);
         }
-
-        Uri serverURI = Uri.parse(serverUrl);
-        String hostServer = serverURI.getHost();
-        if (!TextUtils.isEmpty(hostServer) && hostServer.contains("_")) {
-            SALogger.i(TAG, "Server url " + serverUrl + " contains '_' is not recommend，" +
-                    "see details: https://en.wikipedia.org/wiki/Hostname");
-        }
-
-        mServerUrl = serverUrl;
     }
 
-    String getServerUrl() {
+    public String getServerUrl() {
         return mServerUrl;
     }
 }

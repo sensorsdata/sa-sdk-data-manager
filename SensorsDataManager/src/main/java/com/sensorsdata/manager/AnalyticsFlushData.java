@@ -1,15 +1,13 @@
 package com.sensorsdata.manager;
 
+import static com.sensorsdata.manager.utils.Base64Coder.CHARSET_UTF8;
+
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.text.TextUtils;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import com.sensorsdata.manager.db.DBConstant;
 import com.sensorsdata.manager.db.DBUtil;
@@ -37,8 +35,6 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import static com.sensorsdata.manager.utils.Base64Coder.CHARSET_UTF8;
-
 class AnalyticsFlushData {
     private final String TAG = "AnalyticsDataFlush";
     private static final int MESSAGE_CODE_FLUSH = 100;
@@ -56,7 +52,7 @@ class AnalyticsFlushData {
         handlerThread.start();
         mHandler = new Handler(handlerThread.getLooper()) {
             @Override
-            public void handleMessage(@NonNull Message msg) {
+            public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 if (msg.what == MESSAGE_CODE_FLUSH) {
                     sendData();

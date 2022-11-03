@@ -9,9 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.sensorsdata.manager.SensorsDataManagerAPI;
 import com.sensorsdata.manager.utils.SALogger;
 
@@ -31,9 +28,8 @@ public class SensorsDataManagerContentProvider extends ContentProvider {
         return true;
     }
 
-    @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         if (!isDbWritable) {
             return null;
         }
@@ -49,15 +45,13 @@ public class SensorsDataManagerContentProvider extends ContentProvider {
         return cursor;
     }
 
-    @Nullable
     @Override
-    public String getType(@NonNull Uri uri) {
+    public String getType(Uri uri) {
         return null;
     }
 
-    @Nullable
     @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
+    public Uri insert(Uri uri, ContentValues contentValues) {
         // 不处理 values = null 或者 values 为空的情况
         if (!isDbWritable || contentValues == null || contentValues.size() == 0) {
             return uri;
@@ -84,7 +78,7 @@ public class SensorsDataManagerContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
         if (!isDbWritable) {
             return 0;
         }
@@ -112,7 +106,7 @@ public class SensorsDataManagerContentProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
+    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
         return 0;
     }
 

@@ -76,6 +76,7 @@ public class DBUtil {
 
     /**
      * 更新用户 ID
+     *
      * @param contentValues 埋点数据
      */
     void updateIds(ContentValues contentValues) {
@@ -114,6 +115,7 @@ public class DBUtil {
 
     /**
      * 是否超过缓存条数大小
+     *
      * @param uri Uri
      * @return 是否超过缓存条数，true：超过，false：未超过
      */
@@ -171,7 +173,7 @@ public class DBUtil {
     /**
      * Removes events with an _id &lt;= last_id from table
      *
-     * @param uri Uri
+     * @param uri     Uri
      * @param last_id the last id to delete
      * @return the number of rows in the table
      */
@@ -204,6 +206,7 @@ public class DBUtil {
      *
      * @param uri Uri
      * @param ids 指定的 id 集合
+     * @return 数据库中遗留数据条数
      */
     public int cleanupEvents(Uri uri, JSONArray ids) {
         try {
@@ -219,7 +222,7 @@ public class DBUtil {
     /**
      * 从 Event 表中读取上报数据
      *
-     * @param uri Uri
+     * @param uri   Uri
      * @param limit 条数限制
      * @return 数据
      */
@@ -335,7 +338,8 @@ public class DBUtil {
 
     /**
      * 查询删除数据最后的 Id
-     * @param uri Uri
+     *
+     * @param uri   Uri
      * @param limit 限制
      * @return Id
      */
